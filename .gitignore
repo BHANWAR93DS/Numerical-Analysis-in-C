@@ -1,0 +1,36 @@
+# Build artifacts
+*.o
+*.out
+*.exe
+*.a
+*.so
+
+# Executables without extensions
+/exp01
+/exp02
+/exp03
+/exp04
+/exp05
+/exp06
+/exp07
+/exp08
+/exp09
+/exp10
+/exp11
+
+# LaTeX auxiliary files
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
