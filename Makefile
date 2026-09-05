@@ -35,3 +35,8 @@ exp11:
 	$(CC) $(CFLAGS) src/11-shooting-runge-kutta/main.c -o exp11
 
 all: exp01 exp02 exp03 exp04 exp05 exp06 exp07 exp08 exp09 exp10 exp11
+
+clean:
+	rm -f exp01 exp02 exp03 exp04 exp05 exp06 exp07 exp08 exp09 exp10 exp11
+
+.PHONY: all clean exp01 exp02 exp03 exp04 exp05 exp06 exp07 exp08 exp09 exp10 exp11
