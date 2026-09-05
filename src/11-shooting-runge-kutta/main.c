@@ -1,25 +1,125 @@
 #include <stdio.h>
+#include <math.h>
+#define max 51
 
-static double f(int i,double x,double y,double z){ return i==1 ? z : x-2*z-y; }
-static void rk4(double h,double x,double y,double z,double *yn,double *zn){
-    double k1y=h*f(1,x,y,z), k1z=h*f(2,x,y,z);
-    double k2y=h*f(1,x+h/2,y+k1y/2,z+k1z/2), k2z=h*f(2,x+h/2,y+k1y/2,z+k1z/2);
-    double k3y=h*f(1,x+h/2,y+k2y/2,z+k2z/2), k3z=h*f(2,x+h/2,y+k2y/2,z+k2z/2);
-    double k4y=h*f(1,x+h,y+k3y,z+k3z), k4z=h*f(2,x+h,y+k3y,z+k3z);
-    *yn=y+(k1y+2*k2y+2*k3y+k4y)/6;
-    *zn=z+(k1z+2*k2z+2*k3z+k4z)/6;
+float f(int i, float x, float y, float z)
+{
+    float fa;
+
+    if(i == 1)
+        fa = z;
+    else
+        fa = x - 2.0*z - y;
+
+    return fa;
 }
-int main(void){
-    int n; double a,b,h,y1[51],z1[51],y2[51],z2[51];
-    printf("Enter alpha, beta: "); if(scanf("%lf%lf",&a,&b)!=2) return 1;
-    printf("Enter n: "); if(scanf("%d",&n)!=1 || n<1 || n>50) return 1;
-    h=(b-a)/n; y1[0]=0; z1[0]=1; y2[0]=1; z2[0]=0;
-    for(int j=0;j<n;j++){
-        rk4(h,a+j*h,y1[j],z1[j],&y1[j+1],&z1[j+1]);
-        rk4(h,a+j*h,y2[j],z2[j],&y2[j+1],&z2[j+1]);
+
+void rk4(float h, float x, float y, float z,
+         float *y_next, float *z_next)
+{
+    float k1y, k2y, k3y, k4y;
+    float k1z, k2z, k3z, k4z;
+
+    k1y = h * f(1, x, y, z);
+    k1z = h * f(2, x, y, z);
+
+    k2y = h * f(1, x + h/2.0,y + k1y/2.0,z + k1z/2.0);
+
+    k2z = h * f(2, x + h/2.0,y + k1y/2.0,z + k1z/2.0);
+
+    k3y = h * f(1, x + h/2.0,y + k2y/2.0, z + k2z/2.0);
+
+    k3z = h * f(2, x + h/2.0,y + k2y/2.0,z + k2z/2.0);
+
+    k4y = h * f(1, x + h, y + k3y,z + k3z);
+
+    k4z = h * f(2, x + h,y + k3y,z + k3z);
+
+    *y_next = y + (k1y + 2*k2y + 2*k3y + k4y) / 6.0;
+    *z_next = z + (k1z + 2*k2z + 2*k3z + k4z) / 6.0;
+}
+
+int main()
+{
+    int i, j, n;
+    float x0, xn, h, lambda;
+    float alpha, beta;
+    float yt, zt, impyt, impzt;
+
+    float y1[max], z1[max];
+    float y2[max], z2[max];
+    float y[max];
+
+    printf("Enter the value of boundary points alpha, beta:\n");
+    scanf("%f %f", &alpha, &beta);
+
+    printf("Enter the value of n:\n");
+    scanf("%d", &n);
+
+    x0 = alpha;
+    xn = beta;
+
+    h = (xn - x0) / n;
+
+    
+    y1[0] = 0.0;
+    z1[0] = 1.0;
+
+    x0 = alpha;
+
+    for(j = 1; j <= n; j++)
+    {
+        yt = y1[j-1];
+        zt = z1[j-1];
+
+        rk4(h, x0, yt, zt, &impyt, &impzt);
+
+        y1[j] = impyt;
+        z1[j] = impzt;
+
+        x0 = x0 + h;
     }
-    double lambda=(2-(2*y2[n]+z2[n]))/((2*y1[n]+z1[n])-(2*y2[n]+z2[n]));
-    printf("\n     x             y\n");
-    for(int i=0;i<=n;i++) printf("%10.4f %13.6f\n",a+i*h,lambda*y1[i]+(1-lambda)*y2[i]);
+
+    
+    y2[0] = 1.0;
+    z2[0] = 0.0;
+
+    x0 = alpha;
+
+    for(j = 1; j <= n; j++)
+    {
+        yt = y2[j-1];
+        zt = z2[j-1];
+
+        rk4(h, x0, yt, zt, &impyt, &impzt);
+
+        y2[j] = impyt;
+        z2[j] = impzt;
+
+        x0 = x0 + h;
+    }
+
+    
+    lambda = (2.0 - (2.0*y2[n] + z2[n])) /
+             ((2.0*y1[n] + z1[n]) -
+              (2.0*y2[n] + z2[n]));
+
+    for(i = 1; i <= n; i++)
+    {
+        y[i] = lambda * y1[i]+ (1.0 - lambda) * y2[i];
+    }
+
+    
+    printf("\n     x           y\n");
+
+    x0 = alpha;
+
+    for(i = 1; i <= n; i++)
+    {
+        x0 = x0 + h;
+
+        printf("%-11.4f %-11.6f\n",x0, y[i]);
+    }
+
     return 0;
 }
